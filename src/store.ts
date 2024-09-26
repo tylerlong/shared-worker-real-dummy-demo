@@ -31,6 +31,17 @@ export class Store {
       worker.port.postMessage({ type: 'action', name: 'removeCallSession', args: { id } });
     }
   }
+
+  public updateCallSessionStatus(id: string, status: CallSession['status']) {
+    if (this.role === 'real') {
+      const callSession = this.callSessions.find((cs) => cs.id === id);
+      if (callSession) {
+        callSession.status = status;
+      }
+    } else {
+      worker.port.postMessage({ type: 'action', name: 'updateCallSessionStatus', args: { id, status } });
+    }
+  }
 }
 
 const store = manage(new Store());

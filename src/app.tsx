@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Tag, Typography } from 'antd';
+import { Button, Space, Tag, Typography } from 'antd';
 import { auto } from 'manate/react';
 
 import type { Store } from './store';
@@ -14,7 +14,16 @@ const App = auto((props: { store: Store }) => {
       {store.callSessions.map((cs) => (
         <div key={cs.id}>
           A call session with status: <Tag color="blue">{cs.status}</Tag>{' '}
-          <Button onClick={() => store.removeCallSession(cs.id)}>Delete</Button>
+          <Space>
+            <Button onClick={() => store.removeCallSession(cs.id)} danger>
+              Delete
+            </Button>
+            Change status to
+            <Button onClick={() => store.updateCallSessionStatus(cs.id, 'init')}>init</Button>
+            <Button onClick={() => store.updateCallSessionStatus(cs.id, 'ringing')}>ringing</Button>
+            <Button onClick={() => store.updateCallSessionStatus(cs.id, 'answered')}>answered</Button>
+            <Button onClick={() => store.updateCallSessionStatus(cs.id, 'disposed')}>disposed</Button>
+          </Space>
         </div>
       ))}
       <Button onClick={() => store.newCallSession()}>Add a new call session</Button>
