@@ -42,6 +42,7 @@ worker.port.onmessage = (e) => {
     // slave
     if (e.data.type === 'sync') {
       console.log('salve got sync', e.data.jsonStr);
+      store.callSessions = JSON.parse(e.data.jsonStr);
     }
   }
 };
