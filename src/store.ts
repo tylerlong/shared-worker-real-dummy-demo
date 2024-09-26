@@ -17,7 +17,7 @@ export class Store {
     if (this.role === 'real') {
       this.callSessions.push({ id: uuid(), status: 'init' });
     } else {
-      worker.port.postMessage({ type: 'action', name: 'new-call-session' });
+      worker.port.postMessage({ type: 'action', name: 'newCallSession' });
     }
   }
 
@@ -28,7 +28,7 @@ export class Store {
         this.callSessions.splice(index, 1);
       }
     } else {
-      worker.port.postMessage({ type: 'action', name: 'remove-call-session', id });
+      worker.port.postMessage({ type: 'action', name: 'removeCallSession', args: { id } });
     }
   }
 }
@@ -46,11 +46,7 @@ worker.port.onmessage = (e) => {
   }
   if (store.role === 'real') {
     if (e.data.type === 'action') {
-      if (e.data.name === 'new-call-session') {
-        store.newCallSession();
-      } else if (e.data.name === 'remove-call-session') {
-        store.removeCallSession(e.data.id);
-      }
+      store[e.data.name](...Object.values(e.data.args ?? {}));
     }
   } else {
     // dummy
