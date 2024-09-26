@@ -27,6 +27,14 @@ self.onconnect = (e) => {
       } else {
         slavePorts.delete(port);
       }
+    } else if (e.data.type === 'action') {
+      if (masterPort) {
+        console.log('forwarding action to master');
+        masterPort.postMessage(e.data);
+      }
+    } else if (e.data.type === 'sync') {
+      console.log('forwarding sync to slaves');
+      slavePorts.forEach((slavePort) => slavePort.postMessage(e.data));
     }
   };
 };

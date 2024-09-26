@@ -1,4 +1,4 @@
-import { manage } from 'manate';
+import { autoRun, manage } from 'manate';
 import hyperid from 'hyperid';
 
 const uuid = hyperid();
@@ -16,7 +16,7 @@ export class Store {
     if (this.role === 'master') {
       this.callSessions.push({ id: uuid(), status: 'init' });
     } else {
-      // todo
+      worker.port.postMessage({ type: 'action', name: 'new-call-session' });
     }
   }
 }
@@ -28,9 +28,31 @@ worker.port.start();
 window.onbeforeunload = () => worker.port.postMessage({ type: 'close' });
 
 worker.port.onmessage = (e) => {
+  console.log('worker message', e.data);
   if (e.data.type === 'role') {
     store.role = e.data.role;
   }
+  if (store.role === 'master') {
+    if (e.data.type === 'action') {
+      if (e.data.name === 'new-call-session') {
+        store.newCallSession();
+      }
+    }
+  } else {
+    // slave
+    if (e.data.type === 'sync') {
+      console.log('salve got sync', e.data.jsonStr);
+    }
+  }
 };
+
+const { start } = autoRun(store, () => {
+  if (store.role !== 'master') {
+    return;
+  }
+  console.log('post call sessions to worker');
+  worker.port.postMessage({ type: 'sync', jsonStr: JSON.stringify(store.callSessions) });
+});
+start();
 
 export default store;
