@@ -62,7 +62,7 @@ worker.port.onmessage = (e) => {
   } else {
     // dummy
     if (e.data.type === 'sync') {
-      console.log('salve got sync', e.data.jsonStr);
+      console.log('dummy got sync', e.data.jsonStr);
       store.callSessions = JSON.parse(e.data.jsonStr);
     }
   }
