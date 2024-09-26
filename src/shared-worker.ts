@@ -1,46 +1,46 @@
 /// <reference lib="webworker" />
 
 declare let self: SharedWorkerGlobalScope;
-const slavePorts = new Set<MessagePort>();
-let masterPort: MessagePort | undefined;
+const dummyPorts = new Set<MessagePort>();
+let realPort: MessagePort | undefined;
 
 let syncCache: any;
 self.onconnect = (e) => {
   console.log('port connected');
   const port = e.ports[0];
-  if (masterPort) {
-    slavePorts.add(port);
-    port.postMessage({ type: 'role', role: 'slave' });
+  if (realPort) {
+    dummyPorts.add(port);
+    port.postMessage({ type: 'role', role: 'dummy' });
     if (syncCache) {
       port.postMessage(syncCache);
     }
   } else {
-    masterPort = port;
-    port.postMessage({ type: 'role', role: 'master' });
+    realPort = port;
+    port.postMessage({ type: 'role', role: 'real' });
   }
   port.onmessage = (e) => {
     console.log('port message', e.data);
     if (e.data.type === 'close') {
       console.log('port closed');
-      if (port === masterPort) {
-        masterPort = undefined;
-        if (slavePorts.size > 0) {
-          masterPort = Array.from(slavePorts)[0];
-          slavePorts.delete(masterPort);
-          masterPort.postMessage({ type: 'role', role: 'master' });
+      if (port === realPort) {
+        realPort = undefined;
+        if (dummyPorts.size > 0) {
+          realPort = Array.from(dummyPorts)[0];
+          dummyPorts.delete(realPort);
+          realPort.postMessage({ type: 'role', role: 'real' });
         }
       } else {
-        slavePorts.delete(port);
+        dummyPorts.delete(port);
       }
     } else if (e.data.type === 'action') {
-      if (masterPort) {
-        console.log('forwarding action to master');
-        masterPort.postMessage(e.data);
+      if (realPort) {
+        console.log('forwarding action to real');
+        realPort.postMessage(e.data);
       }
     } else if (e.data.type === 'sync') {
-      console.log('forwarding sync to slaves');
+      console.log('forwarding sync to dummies');
       syncCache = e.data;
-      slavePorts.forEach((slavePort) => slavePort.postMessage(e.data));
+      dummyPorts.forEach((dummyPort) => dummyPort.postMessage(e.data));
     }
   };
 };

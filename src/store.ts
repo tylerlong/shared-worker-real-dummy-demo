@@ -13,7 +13,7 @@ export class Store {
   public callSessions: CallSession[] = [];
 
   public newCallSession() {
-    if (this.role === 'master') {
+    if (this.role === 'real') {
       this.callSessions.push({ id: uuid(), status: 'init' });
     } else {
       worker.port.postMessage({ type: 'action', name: 'new-call-session' });
@@ -32,14 +32,14 @@ worker.port.onmessage = (e) => {
   if (e.data.type === 'role') {
     store.role = e.data.role;
   }
-  if (store.role === 'master') {
+  if (store.role === 'real') {
     if (e.data.type === 'action') {
       if (e.data.name === 'new-call-session') {
         store.newCallSession();
       }
     }
   } else {
-    // slave
+    // dummy
     if (e.data.type === 'sync') {
       console.log('salve got sync', e.data.jsonStr);
       store.callSessions = JSON.parse(e.data.jsonStr);
@@ -48,7 +48,7 @@ worker.port.onmessage = (e) => {
 };
 
 const { start } = autoRun(store, () => {
-  if (store.role !== 'master') {
+  if (store.role !== 'real') {
     return;
   }
   console.log('post call sessions to worker');

@@ -1,12 +1,12 @@
-# Shared worker master slaves demo
+# Shared worker real/dummy demo
 
-If there are multiple tabs/windows of this web application, only one of them is a master app, all other tabs/windows are slave apps. 
+If there are multiple tabs/windows of this web application, only one of them is a real app, all other tabs/windows are dummy apps. 
 
-The master app will sync its state to all salves apps so that all tabs/windows are in sync.
+The real app will sync its state to all salves apps so that all tabs/windows are in sync.
 
-When user performs an action on a slave app, it will send a message to the master app, and master app will update the state. 
+When user performs an action on a dummy app, it will send a message to the real app, and real app will update the state. 
 
-The first connected tab will be master app. When the master tab is closed, one of the slave apps will be promoted to be the master app.
+The first connected tab will be real app. When the real tab is closed, one of the dummy apps will be promoted to be the real app.
 
 
 ## Notes
