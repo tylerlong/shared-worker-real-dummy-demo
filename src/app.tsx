@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Typography } from 'antd';
+import { Button, Tag, Typography } from 'antd';
 import { auto } from 'manate/react';
 
 import type { Store } from './store';
@@ -12,7 +12,10 @@ const App = auto((props: { store: Store }) => {
     <>
       <Title>I am {store.role}</Title>
       {store.callSessions.map((cs) => (
-        <div key={cs.id}>I am a call session, my status is {cs.status}</div>
+        <div key={cs.id}>
+          A call session with status: <Tag color="blue">{cs.status}</Tag>{' '}
+          <Button onClick={() => store.removeCallSession(cs.id)}>Delete</Button>
+        </div>
       ))}
       <Button onClick={() => store.newCallSession()}>Add a new call session</Button>
     </>

@@ -1,5 +1,6 @@
 import { autoRun, manage } from 'manate';
 import hyperid from 'hyperid';
+import { debounce } from 'lodash';
 
 const uuid = hyperid();
 
@@ -19,6 +20,17 @@ export class Store {
       worker.port.postMessage({ type: 'action', name: 'new-call-session' });
     }
   }
+
+  public removeCallSession(id: string) {
+    if (this.role === 'real') {
+      const index = this.callSessions.findIndex((cs) => cs.id === id);
+      if (index !== -1) {
+        this.callSessions.splice(index, 1);
+      }
+    } else {
+      worker.port.postMessage({ type: 'action', name: 'remove-call-session', id });
+    }
+  }
 }
 
 const store = manage(new Store());
@@ -36,6 +48,8 @@ worker.port.onmessage = (e) => {
     if (e.data.type === 'action') {
       if (e.data.name === 'new-call-session') {
         store.newCallSession();
+      } else if (e.data.name === 'remove-call-session') {
+        store.removeCallSession(e.data.id);
       }
     }
   } else {
@@ -47,13 +61,18 @@ worker.port.onmessage = (e) => {
   }
 };
 
-const { start } = autoRun(store, () => {
-  if (store.role !== 'real') {
-    return;
-  }
-  console.log('post call sessions to worker');
-  worker.port.postMessage({ type: 'sync', jsonStr: JSON.stringify(store.callSessions) });
-});
+const { start } = autoRun(
+  store,
+  () => {
+    if (store.role !== 'real') {
+      return;
+    }
+    console.log('post call sessions to worker', JSON.stringify(store.callSessions));
+    worker.port.postMessage({ type: 'sync', jsonStr: JSON.stringify(store.callSessions) });
+  },
+  // array.splice will trigger multiple times, we only need the last one
+  (func: () => void) => debounce(func, 1, { leading: false, trailing: true }),
+);
 start();
 
 export default store;
