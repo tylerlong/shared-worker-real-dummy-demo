@@ -3,12 +3,17 @@
 declare let self: SharedWorkerGlobalScope;
 const slavePorts = new Set<MessagePort>();
 let masterPort: MessagePort | undefined;
+
+let syncCache: any;
 self.onconnect = (e) => {
   console.log('port connected');
   const port = e.ports[0];
   if (masterPort) {
     slavePorts.add(port);
     port.postMessage({ type: 'role', role: 'slave' });
+    if (syncCache) {
+      port.postMessage(syncCache);
+    }
   } else {
     masterPort = port;
     port.postMessage({ type: 'role', role: 'master' });
@@ -34,6 +39,7 @@ self.onconnect = (e) => {
       }
     } else if (e.data.type === 'sync') {
       console.log('forwarding sync to slaves');
+      syncCache = e.data;
       slavePorts.forEach((slavePort) => slavePort.postMessage(e.data));
     }
   };
