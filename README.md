@@ -4,7 +4,7 @@ If there are multiple tabs/windows of this web application, only one of them is 
 
 The real app will sync its state to all dummy apps so that all tabs/windows are in sync.
 
-When user performs an action on a dummy app, it will send a message to the real app, and real app will perform the action instead. And update state will be synced to all dummy apps. 
+When user performs an action on a dummy app, it will forward the action to SharedWorker which will forward to the real app. The real app will perform the action instead. And updated state will be synced to all dummy apps. 
 
 The first tab will be real app. When the real tab is closed, one of the dummy apps will be promoted to be the real app.
 
