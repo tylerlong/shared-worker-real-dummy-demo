@@ -24,11 +24,8 @@ export class Store {
   public removeCallSession(id: string) {
     if (this.role === 'real') {
       const index = this.callSessions.findIndex((cs) => cs.id === id);
-      const self = this as Managed<Store>;
       if (index !== -1) {
-        self.$t = true; // transaction start
-        self.callSessions.splice(index, 1);
-        self.$t = false; // transaction end
+        this.callSessions.splice(index, 1);
       }
     } else {
       worker.port.postMessage({ type: 'action', name: 'removeCallSession', args: { id } });
@@ -48,6 +45,14 @@ export class Store {
 }
 
 const store = manage(new Store());
+
+// wrap methods to start and end transaction
+const removeCallSession = store.removeCallSession.bind(store);
+store.removeCallSession = (id: string) => {
+  store.$t = true; // transaction start
+  removeCallSession(id);
+  store.$t = false; // transaction end
+};
 
 const worker = new SharedWorker(new URL('./shared-worker.ts', import.meta.url), { type: 'module' });
 worker.port.start();
