@@ -1,6 +1,5 @@
 import { autoRun, manage } from 'manate';
 import hyperid from 'hyperid';
-import { debounce } from 'lodash';
 
 const uuid = hyperid();
 
@@ -57,7 +56,9 @@ worker.port.onmessage = (e) => {
   }
   if (store.role === 'real') {
     if (e.data.type === 'action') {
+      store.$t = true; // transaction start
       store[e.data.name](...Object.values(e.data.args ?? {}));
+      store.$t = false; // transaction end
     }
   } else {
     // dummy
@@ -68,18 +69,13 @@ worker.port.onmessage = (e) => {
   }
 };
 
-const { start } = autoRun(
-  store,
-  () => {
-    if (store.role !== 'real') {
-      return;
-    }
-    console.log('post call sessions to worker', JSON.stringify(store.callSessions));
-    worker.port.postMessage({ type: 'sync', jsonStr: JSON.stringify(store.callSessions) });
-  },
-  // array.splice will trigger multiple times, we only need the last one
-  (func: () => void) => debounce(func, 1, { leading: false, trailing: true }),
-);
+const { start } = autoRun(store, () => {
+  if (store.role !== 'real') {
+    return;
+  }
+  console.log('post call sessions to worker', JSON.stringify(store.callSessions));
+  worker.port.postMessage({ type: 'sync', jsonStr: JSON.stringify(store.callSessions) });
+});
 start();
 
 export default store;
