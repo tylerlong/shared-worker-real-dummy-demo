@@ -1,3 +1,4 @@
+import type { Managed } from 'manate';
 import { autoRun, manage } from 'manate';
 import hyperid from 'hyperid';
 
@@ -23,8 +24,11 @@ export class Store {
   public removeCallSession(id: string) {
     if (this.role === 'real') {
       const index = this.callSessions.findIndex((cs) => cs.id === id);
+      const self = this as Managed<Store>;
       if (index !== -1) {
-        this.callSessions.splice(index, 1);
+        self.$t = true; // transaction start
+        self.callSessions.splice(index, 1);
+        self.$t = false; // transaction end
       }
     } else {
       worker.port.postMessage({ type: 'action', name: 'removeCallSession', args: { id } });
@@ -56,9 +60,7 @@ worker.port.onmessage = (e) => {
   }
   if (store.role === 'real') {
     if (e.data.type === 'action') {
-      store.$t = true; // transaction start
       store[e.data.name](...Object.values(e.data.args ?? {}));
-      store.$t = false; // transaction end
     }
   } else {
     // dummy
