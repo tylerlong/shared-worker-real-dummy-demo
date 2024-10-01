@@ -1,4 +1,4 @@
-import { autoRun, manage } from 'manate';
+import { autoRun, manage, $ } from 'manate';
 import hyperid from 'hyperid';
 
 const uuid = hyperid();
@@ -24,7 +24,9 @@ export class Store {
     if (this.role === 'real') {
       const index = this.callSessions.findIndex((cs) => cs.id === id);
       if (index !== -1) {
+        $(this.callSessions).begin();
         this.callSessions.splice(index, 1);
+        $(this.callSessions).commit();
       }
     } else {
       worker.port.postMessage({ type: 'action', name: 'removeCallSession', args: { id } });
@@ -44,14 +46,6 @@ export class Store {
 }
 
 const store = manage(new Store());
-
-// wrap methods to start and end transaction
-const removeCallSession = store.removeCallSession.bind(store);
-store.removeCallSession = (id: string) => {
-  store.$e.begin(); // transaction start
-  removeCallSession(id);
-  store.$e.commit(); // transaction end
-};
 
 const worker = new SharedWorker(new URL('./shared-worker.ts', import.meta.url), { type: 'module' });
 worker.port.start();
