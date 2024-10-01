@@ -19,7 +19,7 @@ self.onconnect = (e) => {
     port.postMessage({ type: 'role', role: 'real' });
   }
   port.onmessage = (e) => {
-    console.log('port message', e.data);
+    console.log('port message', JSON.stringify(e.data));
     if (e.data.type === 'close') {
       console.log('port closed');
       if (port === realPort) {

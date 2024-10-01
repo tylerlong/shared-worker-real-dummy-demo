@@ -2436,10 +2436,10 @@ eslint-plugin-prettier@^5.2.1:
     prettier-linter-helpers "^1.0.0"
     synckit "^0.9.1"
 
-eslint-plugin-react@^7.37.0:
-  version "7.37.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-react/-/eslint-plugin-react-7.37.0.tgz#c21f64a32fc34df1eaeca571ec8f70bdc40dd20a"
-  integrity sha512-IHBePmfWH5lKhJnJ7WB1V+v/GolbB0rjS8XYVCSQCZKaQCAUhMoVoOEn1Ef8Z8Wf0a7l8KTJvuZg5/e4qrZ6nA==
+eslint-plugin-react@^7.37.1:
+  version "7.37.1"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-react/-/eslint-plugin-react-7.37.1.tgz#56493d7d69174d0d828bc83afeffe96903fdadbd"
+  integrity sha512-xwTnwDqzbDRA8uJ7BMxPs/EXRB3i8ZfnOIp8BsxEQkT0nHPp+WWceqGgo6rKb9ctNi8GJLDT4Go5HAWELa/WMg==
   dependencies:
     array-includes "^3.1.8"
     array.prototype.findlast "^1.2.5"
@@ -3302,10 +3302,10 @@ magic-string@^0.30.11:
   dependencies:
     "@jridgewell/sourcemap-codec" "^1.5.0"
 
-manate@^0.9.3:
-  version "0.9.3"
-  resolved "https://registry.yarnpkg.com/manate/-/manate-0.9.3.tgz#242d97757295b6e821a9a526101d7522dffc5bfe"
-  integrity sha512-bT5ouuUJ2/ZnUEelYbwadiUNzedbfjXEFY8U1bFfUgCfAxgyo22qqVyb4Npa2CB/mAq5BNhUp2cslz/ezTpl/A==
+manate@^0.9.4:
+  version "0.9.4"
+  resolved "https://registry.yarnpkg.com/manate/-/manate-0.9.4.tgz#cef5d821dc411fd403b8ff79fa380e6c6da95d82"
+  integrity sha512-m9Yi0yx+evLHHWpmcsaQl7/gMJgLUa5k5X8LwksXtDwdrczHwgq/RY34N4CEeoLlQzp+U/S9gMsI+VW0htCvxw==
 
 mdn-data@2.0.14:
   version "2.0.14"

@@ -1,5 +1,4 @@
-import type { Managed } from 'manate';
-import { autoRun, manage } from 'manate';
+import { autoRun, manage, Transaction } from 'manate';
 import hyperid from 'hyperid';
 
 const uuid = hyperid();
@@ -49,9 +48,9 @@ const store = manage(new Store());
 // wrap methods to start and end transaction
 const removeCallSession = store.removeCallSession.bind(store);
 store.removeCallSession = (id: string) => {
-  store.$t = true; // transaction start
+  const transaction = new Transaction(store); // transaction start
   removeCallSession(id);
-  store.$t = false; // transaction end
+  transaction.commit(); // transaction end
 };
 
 const worker = new SharedWorker(new URL('./shared-worker.ts', import.meta.url), { type: 'module' });
@@ -59,7 +58,7 @@ worker.port.start();
 window.onbeforeunload = () => worker.port.postMessage({ type: 'close' });
 
 worker.port.onmessage = (e) => {
-  console.log('worker message', e.data);
+  console.log('worker message', JSON.stringify(e.data));
   if (e.data.type === 'role') {
     store.role = e.data.role;
   }
@@ -70,7 +69,6 @@ worker.port.onmessage = (e) => {
   } else {
     // dummy
     if (e.data.type === 'sync') {
-      console.log('dummy got sync', e.data.jsonStr);
       store.callSessions = JSON.parse(e.data.jsonStr);
     }
   }
@@ -80,7 +78,6 @@ const { start } = autoRun(store, () => {
   if (store.role !== 'real') {
     return;
   }
-  console.log('post call sessions to worker', JSON.stringify(store.callSessions));
   worker.port.postMessage({ type: 'sync', jsonStr: JSON.stringify(store.callSessions) });
 });
 start();
