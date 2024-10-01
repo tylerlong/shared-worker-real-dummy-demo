@@ -1,4 +1,4 @@
-import { autoRun, manage, Transaction } from 'manate';
+import { autoRun, manage } from 'manate';
 import hyperid from 'hyperid';
 
 const uuid = hyperid();
@@ -48,9 +48,9 @@ const store = manage(new Store());
 // wrap methods to start and end transaction
 const removeCallSession = store.removeCallSession.bind(store);
 store.removeCallSession = (id: string) => {
-  const transaction = new Transaction(store); // transaction start
+  store.$e.begin(); // transaction start
   removeCallSession(id);
-  transaction.commit(); // transaction end
+  store.$e.commit(); // transaction end
 };
 
 const worker = new SharedWorker(new URL('./shared-worker.ts', import.meta.url), { type: 'module' });

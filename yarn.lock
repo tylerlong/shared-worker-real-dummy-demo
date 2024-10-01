@@ -3302,10 +3302,10 @@ magic-string@^0.30.11:
   dependencies:
     "@jridgewell/sourcemap-codec" "^1.5.0"
 
-manate@^0.9.4:
-  version "0.9.4"
-  resolved "https://registry.yarnpkg.com/manate/-/manate-0.9.4.tgz#cef5d821dc411fd403b8ff79fa380e6c6da95d82"
-  integrity sha512-m9Yi0yx+evLHHWpmcsaQl7/gMJgLUa5k5X8LwksXtDwdrczHwgq/RY34N4CEeoLlQzp+U/S9gMsI+VW0htCvxw==
+manate@^0.9.5:
+  version "0.9.5"
+  resolved "https://registry.yarnpkg.com/manate/-/manate-0.9.5.tgz#00c57fa007ef6931040c75a703f0b3f45e1fbc48"
+  integrity sha512-ehOJcfreefv7pqYkL+jl1Hl0MBNg6dhheGujLgHt17jTYolu21imixdm/CKBRZWLSLHsW7umozIRR/KGaMK8TA==
 
 mdn-data@2.0.14:
   version "2.0.14"
