@@ -8,39 +8,47 @@ class CallSession {
   public status: 'init' | 'ringing' | 'answered' | 'disposed' = 'init';
 }
 
+function actionWrapper(value: Function, context: ClassMethodDecoratorContext) {
+  return async function (...args: any[]) {
+    // dummy
+    // forwards action to shared worker
+    if (store.role === 'dummy') {
+      worker.port.postMessage({ type: 'action', name: context.name, args });
+      return;
+    }
+
+    // real
+    // real will not sync state to dummy when transaction is in progress
+    // this prevent sending temporary state to dummy
+    $(store).begin(); // begin transaction
+    const result = await value.apply(this, args);
+    $(store).commit(); // commit transaction
+    return result;
+  };
+}
+
 export class Store {
   public role = 'unknown';
   public callSessions: CallSession[] = [];
 
+  @actionWrapper
   public newCallSession() {
-    if (this.role === 'real') {
-      this.callSessions.push({ id: uuid(), status: 'init' });
-    } else {
-      worker.port.postMessage({ type: 'action', name: 'newCallSession' });
-    }
+    this.callSessions.push({ id: uuid(), status: 'init' });
   }
 
+  @actionWrapper
   public removeCallSession(id: string) {
-    if (this.role === 'real') {
-      const index = this.callSessions.findIndex((cs) => cs.id === id);
-      if (index !== -1) {
-        $(this.callSessions).begin();
-        this.callSessions.splice(index, 1);
-        $(this.callSessions).commit();
-      }
-    } else {
-      worker.port.postMessage({ type: 'action', name: 'removeCallSession', args: { id } });
+    const index = this.callSessions.findIndex((cs) => cs.id === id);
+    if (index !== -1) {
+      this.callSessions.splice(index, 1);
     }
   }
 
+  @actionWrapper
   public updateCallSessionStatus(id: string, status: CallSession['status']) {
-    if (this.role === 'real') {
-      const callSession = this.callSessions.find((cs) => cs.id === id);
-      if (callSession) {
-        callSession.status = status;
-      }
-    } else {
-      worker.port.postMessage({ type: 'action', name: 'updateCallSessionStatus', args: { id, status } });
+    const callSession = this.callSessions.find((cs) => cs.id === id);
+    if (callSession) {
+      callSession.status = status;
     }
   }
 }
@@ -58,7 +66,7 @@ worker.port.onmessage = (e) => {
   }
   if (store.role === 'real') {
     if (e.data.type === 'action') {
-      store[e.data.name](...Object.values(e.data.args ?? {}));
+      store[e.data.name](...e.data.args);
     }
   } else {
     // dummy
